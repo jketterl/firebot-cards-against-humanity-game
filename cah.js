@@ -35,6 +35,32 @@ const cahCommand = {
     }
 }
 
+const cardCommand = {
+    definition: {
+        id:"de.justjakob.cahgame::card",
+        name:"Draw card",
+        active: true,
+        trigger: "!card",
+        description: "Draw a Cards Against Humanity white card"
+    },
+    onTriggerEvent: event => {
+        if (!state.currentGame) {
+            return
+        }
+
+        const { userCommand } = event
+        const username = userCommand.commandSender
+
+        if (username in state.currentGame.draws) {
+            globals.twitchChat.sendChatMessage(`Sorry, but you can only draw once per round.`, null, null, event.chatMessage.id);
+            return
+        }
+
+        state.currentGame.draws[username] = state.currentGame.whiteCards.shift()
+        sendGameState()
+    }
+}
+
 function shuffle(input) {
     const array = [...input]
     for (let i = array.length - 1; i > 0; i--) {
@@ -55,18 +81,142 @@ async function startGame() {
 
             state.currentGame = {
                 blackCard: pack.black[Math.floor(Math.random() * pack.black.length)],
-                whiteCards: shuffle(pack.white)
+                whiteCards: shuffle(pack.white),
+                draws: {}
             }
 
-            console.info(state.currentGame)
-
+            sendGameState()
             globals.eventManager.triggerEvent('de.justjakob.cahgame', 'game-started')
+            globals.commandManager.registerSystemCommand(cardCommand)
 
             resolve()
         })
     })
 }
 
+function sendGameState() {
+    globals.httpServer.sendToOverlay("cah", {blackCard: state.currentGame.blackCard.text, whiteCards: state.currentGame.draws});
+}
+
+const cahStyles = `
+    .cah {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        box-sizing: border-box;
+        font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+        font-weight: bold;
+        font-size: 20pt;
+        color: black;
+    }
+    
+    .cah-card {
+        background-color: white;
+        border-radius: 10px;
+        width: 200px;
+        height: 300px;
+        padding: 20px;
+        margin: 10px;
+        float: left;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .cah-text {
+        flex: 1;
+    }
+    
+    .cah-user {
+        font-size: 16pt;
+        font-style: italic;
+    }
+    
+    .cah-card--black {
+        background-color: black;
+        color: white;
+    }
+    
+    .cah-message {
+        background-color: white;
+        border-radius: 10px;
+        color: black;
+        margin-top: 20px;
+        padding: 20px;
+        clear: both;
+    }
+`
+
+const cahOverlayEffect = {
+    definition: {
+        id: "de.justjakob.cahmangame::overlayEffect",
+        name: "Cards Against Humanity overlay",
+        description: "Cards Against Humanity overlay",
+        icon: "clone",
+        categories: [],
+        dependency: [],
+    },
+    globalSettings: {},
+    optionsTemplate: ``,
+    optionsController: ($scope, utilityService) => {
+
+    },
+    optionsValidator: effect => {
+        return []
+    },
+    onTriggerEvent: async event => {
+        return true;
+    },
+    overlayExtension: {
+        dependencies: {
+            css: [],
+            globalStyles: cahStyles,
+            js: []
+        },
+        event: {
+            name: "cah",
+            onOverlayEvent: data => {
+                console.info(data);
+
+                const $wrapper = $('.wrapper')
+                let $el = $wrapper.find('.cah')
+
+                if (data.blackCard) {
+                    if (!$el.length) {
+                        $el = $(`
+                            <div class="cah">
+                                <div class="cah-card cah-card--black"><div class="cah-text"></div></div>
+                                <div class="cah-whitecards"></div>
+                                <div class="cah-message">Type "!card" in chat to draw a card! <span class="cah-remaining"></span> seconds left!</div>
+                            </div>
+                        `)
+                        $wrapper.append($el)
+                        const $remaining = $el.find('.cah-remaining');
+
+                        // TODO make this configurable
+                        let remaining = 60
+                        $remaining.text(remaining)
+                        const interval = setInterval(() => {
+                            if (--remaining <= 0) {
+                                clearInterval(interval);
+                            }
+                            $remaining.text(remaining)
+                        }, 1000)
+                    }
+
+                    $el.find('.cah-card--black .cah-text').text(data.blackCard.replace(/_/g, "____________").replace(/\\n/g, "<br/>"))
+                    $el.find('.cah-whitecards').html(Object.entries(data.whiteCards).map(([user, text]) => {
+                        return $(`
+                            <div class="cah-card cah-card--white"><div class="cah-text">${text}</div><div class="cah-user">${user}</div></div>
+                        `)
+                    }))
+                } else {
+                    $el.remove()
+                }
+            }
+        }
+    }
+}
 
 const cahTriggerEffect = {
     definition: {
@@ -146,6 +296,7 @@ const globals = {
     gameManager: null,
     commandManager: null,
     twitchChat: null,
+    httpServer: null,
     eventManager: null,
 }
 
@@ -155,9 +306,11 @@ module.exports = {
         globals.gameManager = runRequest.modules.gameManager
         globals.commandManager = runRequest.modules.commandManager
         globals.twitchChat = runRequest.modules.twitchChat
+        globals.httpServer = runRequest.modules.httpServer
         globals.eventManager = runRequest.modules.eventManager
         runRequest.modules.gameManager.registerGame(gameDef)
         runRequest.modules.eventManager.registerEventSource(cahEventSource)
+        runRequest.modules.effectManager.registerEffect(cahOverlayEffect)
         runRequest.modules.effectManager.registerEffect(cahTriggerEffect)
     },
     getScriptManifest: () => {
