@@ -1,10 +1,21 @@
 import * as fs from "fs";
 import globals from "./globals";
-import {CardCommand} from "./commands";
+import {CardCommand, VoteCommand} from "./commands";
 
-type BlackCard = {
+export type BlackCard = {
     text: string;
     draws: number;
+}
+
+export type Draw = {
+    text: string;
+    user: string;
+}
+
+export enum GamePhase {
+    Drawing = "drawing",
+    Voting = "voting",
+    Finished = "finished"
 }
 
 export class CahGame {
@@ -38,7 +49,11 @@ export class CahGame {
 
     blackCard: BlackCard;
     whiteCards: string[];
-    draws: Record<string, string> = {}
+    draws: Draw[] = [];
+    winner?: Draw;
+    phase: GamePhase = GamePhase.Drawing;
+    timeout?: NodeJS.Timeout;
+    votes: Record<string, number> = {};
 
     constructor(blackCard: BlackCard, whiteCards: string[]) {
         this.blackCard = blackCard
@@ -46,18 +61,90 @@ export class CahGame {
         this.sendState()
         globals.eventManager.triggerEvent('de.justjakob.cahgame', 'game-started', {})
         globals.commandManager.registerSystemCommand(CardCommand)
+        this.timeout = setTimeout(() => {
+            this.nextPhase()
+        }, globals.settings.settings.gameSettings.drawingTime * 1000);
+    }
+
+    nextPhase(): void {
+        this.timeout = null;
+        switch (this.phase) {
+            case GamePhase.Drawing:
+                if (!this.draws.length) {
+                    globals.twitchChat.sendChatMessage("No card draws, Cards Against Humanity aborted.")
+                    this.stop()
+                    return
+                }
+                this.draws = CahGame.shuffle(this.draws)
+                this.phase = GamePhase.Voting
+                this.timeout = setTimeout(() => {
+                    this.nextPhase()
+                }, globals.settings.settings.gameSettings.votingTime * 1000);
+                globals.commandManager.unregisterSystemCommand(CardCommand.definition.id)
+                globals.commandManager.registerSystemCommand(VoteCommand)
+                break;
+            case GamePhase.Voting:
+                this.winner = this.getWinner()
+                this.stop()
+                break
+        }
+        this.sendState();
     }
 
     sendState(): void {
-        globals.httpServer.sendToOverlay("cah", {blackCard: this.blackCard.text, whiteCards: this.draws});
+        globals.httpServer.sendToOverlay("cah", {
+            blackCard: this.blackCard.text,
+            whiteCards: this.draws,
+            phase: this.phase,
+            drawingTime: globals.settings.settings.gameSettings.drawingTime,
+            votingTime: globals.settings.settings.gameSettings.votingTime,
+            lingerTime: globals.settings.settings.gameSettings.lingerTime,
+        });
     }
 
     userHasDrawn(user: string): boolean {
-        return user in this.draws
+        const found = this.draws.find(draw => draw.user == user)
+        return typeof(found) !== 'undefined'
     }
 
     draw(user: string): void {
-        this.draws[user] = this.whiteCards.shift()
+        const draw: Draw = {user, text: this.whiteCards.shift()}
+        this.draws.push(draw)
+        globals.twitchChat.sendChatMessage(`You drew a card that says "${draw.text}".`, user, null);
         this.sendState()
+    }
+
+    userHasVoted(user: string): boolean {
+        return user in this.votes
+    }
+
+    vote(user: string, index: number): boolean {
+        if (index < this.draws.length) {
+            this.votes[user] = index
+            return true
+        }
+
+        return false
+    }
+
+    getWinner(): Draw {
+        const sorted = Object.values(this.votes).reduce((acc, index) => {
+            acc[index] += 1
+            return acc
+        }, new Array(this.draws.length).fill(0)).map((votes, index) => {
+            return {votes, draw: this.draws[index]}
+        }).sort(e => e.votes)
+
+        return sorted[0].draw
+    }
+
+    stop(): void {
+        this.phase = GamePhase.Finished
+        globals.commandManager.unregisterSystemCommand(CardCommand.definition.id)
+        globals.commandManager.unregisterSystemCommand(VoteCommand.definition.id)
+        this.sendState()
+        //globals.httpServer.sendToOverlay("cah", {})
+        clearTimeout(this.timeout)
+        CahGame.currentGame = null;
     }
 }

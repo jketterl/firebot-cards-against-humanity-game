@@ -29,6 +29,52 @@ const GameDefinition: FirebotGame = {
                 },
             }
         },
+        gameSettings: {
+            title: "Game settings",
+            description: "General game settings",
+            sortRank: 3,
+            settings: {
+                drawingTime: {
+                    type: "number",
+                    title: "Voting time",
+                    description: "How long should the voting phase last?",
+                    tip: "Time in seconds",
+                    showBottomHr: false,
+                    default: 60,
+                    sortRank: 4,
+                    validation: {
+                        required: true,
+                        min: 0
+                    }
+                },
+                votingTime: {
+                    type: "number",
+                    title: "Voting time",
+                    description: "How long should the voting phase last?",
+                    tip: "Time in seconds",
+                    showBottomHr: false,
+                    default: 60,
+                    sortRank: 5,
+                    validation: {
+                        required: true,
+                        min: 0
+                    }
+                },
+                lingerTime: {
+                    type: "number",
+                    title: "Linger time",
+                    description: "How long should the voting results stay on screen?",
+                    tip: "Time in seconds",
+                    showBottomHr: false,
+                    default: 10,
+                    sortRank: 6,
+                    validation: {
+                        required: true,
+                        min: 0
+                    }
+                }
+            }
+        }
     },
     onLoad: gameSettings => {
         if (gameSettings) globals.settings = gameSettings;
