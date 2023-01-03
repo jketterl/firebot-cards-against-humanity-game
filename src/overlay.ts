@@ -138,8 +138,6 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
         event: {
             name: "cah",
             onOverlayEvent: data => {
-                console.info(data);
-
                 const $wrapper = $('.wrapper')
                 let $el = $wrapper.find('.cah')
 
