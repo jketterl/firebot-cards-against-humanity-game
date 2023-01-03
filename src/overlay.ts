@@ -3,23 +3,34 @@ import {Draw, GamePhase} from "./game";
 
 const cahStyles = `
     .cah {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .cah-wrapper {
         background-color: rgba(0, 0, 0, 0.25);
         border-radius: 10px;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
         box-sizing: border-box;
         font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
         font-weight: bold;
         font-size: 20pt;
         color: black;
+        min-width: 700px;
+        max-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 0;
     }
     
     .cah-cards {
+        flex: 1;
         display: flex;
         flex-direction: row;
         justify-content: center;
+        overflow: hidden;
     }
     
     .cah-card {
@@ -31,6 +42,7 @@ const cahStyles = `
         margin: 10px;
         display: flex;
         flex-direction: column;
+        flex-shrink: 0;
     }
     
     .cah-text {
@@ -49,21 +61,18 @@ const cahStyles = `
     }
     
     .cah-footer {
+        flex: 0;
         background-color: white;
         border-radius: 10px;
         color: black;
-        margin-top: 20px;
         padding: 20px;
         text-align: center;
     }
     
-    .cah-phase--drawing .cah-whitecards {
+    .cah-whitecards {
         display: flex;
-        flex-direction: column;
-    }
-    
-    .cah-phase--drawing .cah-card--white {
-        height: unset;
+        flex-direction: row;
+        flex-wrap: wrap;
     }
     
     .cah-phase--drawing .cah-card--white .cah-text {
@@ -149,13 +158,15 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
                     if (!$el.length) {
                         $el = $(`
                             <div class="cah">
-                                <div class="cah-cards">
-                                    <div class="cah-card cah-card--black"><div class="cah-text"></div></div>
-                                    <div class="cah-whitecards"></div>
-                                </div>
-                                <div class="cah-footer">
-                                    <span class="cah-message">Type "!card" in chat to draw a card!</span>
-                                    <span class="cah-countdown"><span class="cah-remaining">${data.drawingTime}</span> seconds left!</span>
+                                <div class="cah-wrapper">
+                                    <div class="cah-cards">
+                                        <div class="cah-card cah-card--black"><div class="cah-text"></div></div>
+                                        <div class="cah-whitecards"></div>
+                                    </div>
+                                    <div class="cah-footer">
+                                        <span class="cah-message">Type "!card" in chat to draw a card!</span>
+                                        <span class="cah-countdown"><span class="cah-remaining">${data.drawingTime}</span> seconds left!</span>
+                                    </div>
                                 </div>
                             </div>
                         `)
@@ -183,7 +194,7 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
                     if (data.winner) {
                         $el.find('.cah-whitecards').html(renderDraw(data.winner, 0))
                     } else {
-                        $el.find('.cah-whitecards').html(data.whiteCards.map(renderDraw).join())
+                        $el.find('.cah-whitecards').html(data.whiteCards.map(renderDraw).join(''))
                     }
 
                     const timer: Timer = $el.data('timer');
