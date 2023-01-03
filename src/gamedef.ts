@@ -36,8 +36,8 @@ const GameDefinition: FirebotGame = {
             settings: {
                 drawingTime: {
                     type: "number",
-                    title: "Voting time",
-                    description: "How long should the voting phase last?",
+                    title: "Drawing time",
+                    description: "How long should the drawing phase last?",
                     tip: "Time in seconds",
                     showBottomHr: false,
                     default: 60,
