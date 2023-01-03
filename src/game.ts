@@ -134,7 +134,7 @@ export class CahGame {
             return acc
         }, new Array(this.draws.length).fill(0)).map((votes, index) => {
             return {votes, draw: this.draws[index]}
-        }).sort(e => e.votes)
+        }).sort((a, b) => b.votes - a.votes)
 
         return sorted[0].draw
     }
