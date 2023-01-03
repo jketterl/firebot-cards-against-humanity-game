@@ -102,9 +102,16 @@ const VoteCommand: SystemCommand = {
             return
         }
 
-        if (!CahGame.currentGame.vote(username, parseInt(userCommand.args[0]))) {
-            //@ts-ignore firebot types are not updated for message responses
-            globals.twitchChat.sendChatMessage(`Invalid vote`, null, null, event.chatMessage.id);
+        const vote = parseInt(userCommand.args[0])
+
+        if (!CahGame.currentGame.vote(username, vote)) {
+            if (vote == 69) {
+                //@ts-ignore firebot types are not updated for message responses
+                globals.twitchChat.sendChatMessage(`Nice!`, null, null, event.chatMessage.id);
+            } else {
+                //@ts-ignore firebot types are not updated for message responses
+                globals.twitchChat.sendChatMessage(`Invalid vote`, null, null, event.chatMessage.id);
+            }
             return
         }
     }
