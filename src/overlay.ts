@@ -54,6 +54,7 @@ const cahStyles = `
         color: black;
         margin-top: 20px;
         padding: 20px;
+        text-align: center;
     }
     
     .cah-phase--drawing .cah-whitecards {
@@ -94,6 +95,12 @@ type OverlayData = {
     lingerTime: number;
 }
 
+type Timer = {
+    remaining: number;
+    interval?: NodeJS.Timeout;
+    phase: GamePhase;
+}
+
 const CahOverlay: Effects.EffectType<any, OverlayData> = {
     definition: {
         id: "de.justjakob.cahmangame::overlayEffect",
@@ -128,6 +135,17 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
                 let $el = $wrapper.find('.cah')
 
                 if (data.phase) {
+                    if (data.phase && data.phase == 'finished') {
+                        if (data.winner) {
+                            setTimeout(() => {
+                                $el.remove()
+                            }, data.lingerTime * 1000)
+                        } else {
+                            $el.remove()
+                            return
+                        }
+                    }
+
                     if (!$el.length) {
                         $el = $(`
                             <div class="cah">
@@ -137,41 +155,21 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
                                 </div>
                                 <div class="cah-footer">
                                     <span class="cah-message">Type "!card" in chat to draw a card!</span>
-                                    <span class="cah-countdown"><span class="cah-remaining"></span> seconds left!</span>
+                                    <span class="cah-countdown"><span class="cah-remaining">${data.drawingTime}</span> seconds left!</span>
                                 </div>
                             </div>
                         `)
                         $wrapper.append($el)
-                        const $message = $el.find('.cah-message');
-                        const $remaining = $el.find('.cah-remaining');
 
-                        // let remaining = data.drawingTime;
-                        let remaining = 0;
-                        if ($message.data("phase") !== data.phase) {
-                            switch (data.phase) {
-                                case "drawing":
-                                    remaining = data.drawingTime;
-                                    break;
-                                case "voting":
-                                    $message.text("Vote for your favorite card now!")
-                                    remaining = data.votingTime;
-                                    break;
-                            }
+                        const timer: Timer = {
+                            interval: null,
+                            remaining: data.drawingTime,
+                            phase: data.phase
                         }
-                        $message.data("phase", data.phase)
-                        console.info("remaining: " + remaining);
-
-                        $remaining.text(remaining)
-                        const interval = setInterval(() => {
-                            if (--remaining <= 0) {
-                                clearInterval(interval);
-                                $message.text();
-                            }
-                            $remaining.text(remaining)
-                        }, 1000)
+                        $el.data('timer', timer);
                     }
 
-                    $el.removeClass('cah-phase--voting cah-phase--drawing').addClass('cah-phase--' + data.phase)
+                    $el.removeClass('cah-phase--voting cah-phase--drawing cah-phase--finished').addClass('cah-phase--' + data.phase)
                     $el.find('.cah-card--black .cah-text').text(data.blackCard.replace(/_/g, "____________").replace(/\\n/g, "<br/>"))
 
                     const renderDraw = (draw: Draw, index: number) => `
@@ -186,6 +184,39 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
                         $el.find('.cah-whitecards').html(renderDraw(data.winner, 0))
                     } else {
                         $el.find('.cah-whitecards').html(data.whiteCards.map(renderDraw).join())
+                    }
+
+                    const timer: Timer = $el.data('timer');
+                    if (timer) {
+                        const $message = $el.find('.cah-message');
+                        const $countdown = $el.find('.cah-countdown');
+                        const $remaining = $countdown.find('.cah-remaining');
+
+                        if (timer.phase !== data.phase) {
+                            switch (data.phase) {
+                                case 'drawing':
+                                    timer.remaining = data.drawingTime
+                                    break;
+                                case 'voting':
+                                    $message.text("Vote for your favorite card now!")
+                                    timer.remaining = data.votingTime
+                                    break
+                                case 'finished':
+                                    $message.text("We have a winner!")
+                                    $countdown.text('')
+                                    break
+                            }
+                        }
+
+                        if (!timer.interval) {
+                            timer.interval = setInterval(() => {
+                                if (--timer.remaining <= 0) {
+                                    clearInterval(timer.interval);
+                                    timer.interval = null;
+                                }
+                                $remaining.text(timer.remaining)
+                            }, 1000)
+                        }
                     }
                 } else {
                     $el.remove()

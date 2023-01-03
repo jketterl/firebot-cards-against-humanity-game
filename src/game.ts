@@ -50,7 +50,7 @@ export class CahGame {
     blackCard: BlackCard;
     whiteCards: string[];
     draws: Draw[] = [];
-    winner?: Draw;
+    winner?: Draw = null;
     phase: GamePhase = GamePhase.Drawing;
     timeout?: NodeJS.Timeout;
     votes: Record<string, number> = {};
@@ -63,7 +63,7 @@ export class CahGame {
         globals.commandManager.registerSystemCommand(CardCommand)
         this.timeout = setTimeout(() => {
             this.nextPhase()
-        }, globals.settings.settings.gameSettings.drawingTime * 1000);
+        }, (globals.settings.settings.gameSettings.drawingTime || 60) * 1000);
     }
 
     nextPhase(): void {
@@ -79,7 +79,7 @@ export class CahGame {
                 this.phase = GamePhase.Voting
                 this.timeout = setTimeout(() => {
                     this.nextPhase()
-                }, globals.settings.settings.gameSettings.votingTime * 1000);
+                }, (globals.settings.settings.gameSettings.votingTime || 60) * 1000);
                 globals.commandManager.unregisterSystemCommand(CardCommand.definition.id)
                 globals.commandManager.registerSystemCommand(VoteCommand)
                 break;
@@ -96,9 +96,10 @@ export class CahGame {
             blackCard: this.blackCard.text,
             whiteCards: this.draws,
             phase: this.phase,
-            drawingTime: globals.settings.settings.gameSettings.drawingTime,
-            votingTime: globals.settings.settings.gameSettings.votingTime,
-            lingerTime: globals.settings.settings.gameSettings.lingerTime,
+            winner: this.winner,
+            drawingTime: globals.settings.settings.gameSettings.drawingTime || 60,
+            votingTime: globals.settings.settings.gameSettings.votingTime || 60,
+            lingerTime: globals.settings.settings.gameSettings.lingerTime || 10,
         });
     }
 
