@@ -151,7 +151,7 @@ export class CahGame {
         globals.commandManager.unregisterSystemCommand(CardCommand.definition.id)
         globals.commandManager.unregisterSystemCommand(VoteCommand.definition.id)
         this.sendState()
-        //globals.httpServer.sendToOverlay("cah", {})
+        globals.eventManager.triggerEvent('de.justjakob.cahgame', 'game-ended', {blackCard: this.blackCard, winner: this.winner})
         clearTimeout(this.timeout)
         CahGame.currentGame = null;
     }
