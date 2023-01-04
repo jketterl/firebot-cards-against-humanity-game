@@ -38,7 +38,7 @@ const cahStyles = `
         background-color: white;
         border-radius: 10px;
         width: 200px;
-        height: 300px;
+        min-height: 300px;
         padding: 20px;
         margin: 10px;
         display: flex;
@@ -77,17 +77,28 @@ const cahStyles = `
     }
     
     .cah-cardstack {
-        display: inline-flex;
+        display: flex;
         flex-direction: column;
+        min-height: 340px;
+        background-color: white;
+        border-radius: 10px;
+        margin: 10px;
     }
     
     .cah-cardstack > .cah-card {
-        margin-top: -100px;
         border-top: 1px solid black;
+        min-height: unset;
+        margin: 0;
+        flex: 1 0 auto;
     }
     
     .cah-cardstack > .cah-card:first-child {
-        margin-top: 10px;
+        border-top: none;
+    }
+    
+    .cah-cardstack .cah-user,
+    .cah-cardstack .cah-vote {
+        padding: 5px;
     }
     
     .cah-phase--drawing .cah-card--white .cah-text {
@@ -194,7 +205,7 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
                     }
 
                     $el.removeClass('cah-phase--voting cah-phase--drawing cah-phase--finished').addClass('cah-phase--' + data.phase)
-                    $el.find('.cah-card--black .cah-text').text(data.blackCard.replace(/_/g, "____________").replace(/\\n/g, "<br/>"))
+                    $el.find('.cah-card--black .cah-text').html(data.blackCard.replace(/_/g, "____________").replace(/\\n/g, "<br/>"))
 
                     const renderDraw = (draw: Draw, index: number) => `
                         <div class="cah-cardstack">
