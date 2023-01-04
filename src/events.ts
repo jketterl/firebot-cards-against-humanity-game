@@ -12,7 +12,17 @@ const CahEventSource: EventSource = {
         id: "game-ended",
         name: "Game ended",
         description: "When a game ends (independent of outcome)",
-        cached: false
+        cached: false,
+        manualMetadata: {
+            blackCard: {
+                text: 'This is a _ card.',
+                pick: 1
+            },
+            winner: {
+                texts: ['test'],
+                user: 'Firebot'
+            }
+        }
     }]
 }
 
