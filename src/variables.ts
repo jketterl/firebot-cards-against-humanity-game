@@ -17,7 +17,7 @@ const CahWinnerVariable: ReplaceVariable = {
         ]
     },
     evaluator(trigger: Effects.Trigger, ...args): any {
-        return (trigger.metadata.eventData.winner as Draw).user || ''
+        return (trigger.metadata.eventData.winner as Draw)?.user || ''
     }
 }
 
@@ -40,7 +40,7 @@ const CahWinningComboVariable: ReplaceVariable = {
         if (!draw) return '';
         const blackCard = (trigger.metadata.eventData.blackCard as BlackCard)
         const replacements = draw.texts.map(x => `[${x}]`)
-        let result = blackCard.text.replace(/_/, () => replacements.shift())
+        let result = blackCard.text.replace(/_/g, () => replacements.shift())
         if (replacements.length) {
             result += ' ' + replacements.join(' ')
         }
