@@ -4,11 +4,11 @@ import {CardCommand, VoteCommand} from "./commands";
 
 export type BlackCard = {
     text: string;
-    draws: number;
+    pick: number;
 }
 
 export type Draw = {
-    text: string;
+    texts: string[];
     user: string;
 }
 
@@ -109,9 +109,16 @@ export class CahGame {
     }
 
     draw(user: string): void {
-        const draw: Draw = {user, text: this.whiteCards.shift()}
+        const draw: Draw = {
+            user,
+            texts: [...new Array(this.blackCard.pick)].map(() => this.whiteCards.shift())
+        }
         this.draws.push(draw)
-        globals.twitchChat.sendChatMessage(`You drew a card that says "${draw.text}".`, user, null);
+        if (this.blackCard.pick == 1) {
+            globals.twitchChat.sendChatMessage(`You drew a card that says "${draw.texts[0]}".`, user, null);
+        } else {
+            globals.twitchChat.sendChatMessage(`You drew ${this.blackCard.pick} cards that say "${draw.texts.join('", "')}".`, user, null);
+        }
         this.sendState()
     }
 

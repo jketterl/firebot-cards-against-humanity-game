@@ -31,6 +31,7 @@ const cahStyles = `
         flex-direction: row;
         justify-content: center;
         overflow: hidden;
+        align-items: start;
     }
     
     .cah-card {
@@ -75,6 +76,20 @@ const cahStyles = `
         flex-wrap: wrap;
     }
     
+    .cah-cardstack {
+        display: inline-flex;
+        flex-direction: column;
+    }
+    
+    .cah-cardstack > .cah-card {
+        margin-top: -100px;
+        border-top: 1px solid black;
+    }
+    
+    .cah-cardstack > .cah-card:first-child {
+        margin-top: 10px;
+    }
+    
     .cah-phase--drawing .cah-card--white .cah-text {
         display: none;
         height: unset;
@@ -85,11 +100,11 @@ const cahStyles = `
         text-align: center;
     }
     
-    .cah-phase--voting .cah-card--white .cah-vote {
+    .cah-phase--voting .cah-cardstack .cah-vote {
         display: unset;
     }
     
-    .cah-phase--voting .cah-card--white .cah-user {
+    .cah-phase--voting .cah-cardstack .cah-user {
         display: none;
     }
 `
@@ -182,8 +197,12 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
                     $el.find('.cah-card--black .cah-text').text(data.blackCard.replace(/_/g, "____________").replace(/\\n/g, "<br/>"))
 
                     const renderDraw = (draw: Draw, index: number) => `
-                        <div class="cah-card cah-card--white">
-                            <div class="cah-text">${draw.text}</div>
+                        <div class="cah-cardstack">
+                            ${draw.texts.map((text) => `
+                                <div class="cah-card cah-card--white">
+                                    <div class="cah-text">${text}</div>
+                                </div>
+                            `).join('')}
                             <div class="cah-user">${draw.user}</div>
                             <div class="cah-vote">!vote ${index}</div>
                         </div>
