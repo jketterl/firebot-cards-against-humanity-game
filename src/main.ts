@@ -4,7 +4,7 @@ import globals from "./globals";
 import CahEventSource from "./events";
 import CahOverlay from "./overlay";
 import CahTriggerEffect from "./trigger";
-import {CahWinnerVariable, CahWinningComboVariable} from "./variables";
+import {CahBlackCardVariable, CahWinnerVariable, CahWinningComboVariable} from "./variables";
 import {CahGameHasWinner} from "./filters";
 
 const script: Firebot.CustomScript = {
@@ -20,6 +20,7 @@ const script: Firebot.CustomScript = {
         runRequest.modules.effectManager.registerEffect(CahOverlay)
         runRequest.modules.effectManager.registerEffect(CahTriggerEffect);
         [
+            CahBlackCardVariable,
             CahWinnerVariable,
             CahWinningComboVariable
         ].forEach(v => runRequest.modules.replaceVariableManager.registerReplaceVariable(v))

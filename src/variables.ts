@@ -2,6 +2,27 @@ import {ReplaceVariable} from "@crowbartools/firebot-custom-scripts-types/types/
 import {Effects} from "@crowbartools/firebot-custom-scripts-types/types/effects";
 import {Draw, BlackCard} from "./game";
 
+const CahBlackCardVariable: ReplaceVariable = {
+    definition: {
+        handle: "cahBlackCard",
+        description: "Cards Against Humanity black card",
+        triggers: {
+            event: [
+                "de.justjakob.cahgame:game-started",
+                "de.justjakob.cahgame:game-ended"
+            ],
+            manual: true
+        },
+        possibleDataOutput: [
+            "text"
+        ]
+    },
+    evaluator(trigger: Effects.Trigger, ...args): any {
+        const blackCard = (trigger.metadata.eventData.blackCard as BlackCard)
+        return blackCard.text.replace(/_/g, '[blank]').replace(/\\n/g, '\n')
+    }
+}
+
 const CahWinnerVariable: ReplaceVariable = {
     definition: {
         handle: "cahWinner",
@@ -49,6 +70,7 @@ const CahWinningComboVariable: ReplaceVariable = {
 }
 
 export {
+    CahBlackCardVariable,
     CahWinnerVariable,
     CahWinningComboVariable
 }

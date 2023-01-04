@@ -59,7 +59,7 @@ export class CahGame {
         this.blackCard = blackCard
         this.whiteCards = whiteCards
         this.sendState()
-        globals.eventManager.triggerEvent('de.justjakob.cahgame', 'game-started', {})
+        globals.eventManager.triggerEvent('de.justjakob.cahgame', 'game-started', {blackCard: this.blackCard})
         globals.commandManager.registerSystemCommand(CardCommand)
         this.timeout = setTimeout(() => {
             this.nextPhase()
