@@ -23,6 +23,12 @@ const CahBlackCardVariable: ReplaceVariable = {
     }
 }
 
+function naturalJoin(input: string[]): string {
+    if (!input.length) return ''
+    if (input.length == 1) return input[0]
+    return input.slice(0, -1).join(', ') + ' and ' + input.slice(-1)
+}
+
 const CahWinnerVariable: ReplaceVariable = {
     definition: {
         handle: "cahWinner",
@@ -38,7 +44,9 @@ const CahWinnerVariable: ReplaceVariable = {
         ]
     },
     evaluator(trigger: Effects.Trigger, ...args): any {
-        return (trigger.metadata.eventData.winner as Draw)?.user || ''
+        const draws = trigger.metadata.eventData.winners as Draw[]
+        const users = draws.map(x => x.user)
+        return naturalJoin(users)
     }
 }
 
@@ -57,15 +65,16 @@ const CahWinningComboVariable: ReplaceVariable = {
         ]
     },
     evaluator(trigger: Effects.Trigger, ...args): any {
-        const draw = (trigger.metadata.eventData.winner as Draw)
-        if (!draw) return '';
+        const draws = (trigger.metadata.eventData.winners as Draw[])
         const blackCard = (trigger.metadata.eventData.blackCard as BlackCard)
-        const replacements = draw.texts.map(x => `[${x}]`)
-        let result = blackCard.text.replace(/_/g, () => replacements.shift())
-        if (replacements.length) {
-            result += ' ' + replacements.join(' ')
-        }
-        return result.replace(/\\n/g, '\n')
+        return naturalJoin(draws.map(draw => {
+            const replacements = draw.texts.map(x => `[${x}]`)
+            let result = blackCard.text.replace(/_/g, () => replacements.shift())
+            if (replacements.length) {
+                result += ' ' + replacements.join(' ')
+            }
+            return result.replace(/\\n/g, '\n')
+        }))
     }
 }
 

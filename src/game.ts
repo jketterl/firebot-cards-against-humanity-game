@@ -50,7 +50,7 @@ export class CahGame {
     blackCard: BlackCard;
     whiteCards: string[];
     draws: Draw[] = [];
-    winner?: Draw = null;
+    winners: Draw[] = []
     phase: GamePhase = GamePhase.Drawing;
     timeout?: NodeJS.Timeout;
     votes: Record<string, number> = {};
@@ -84,7 +84,10 @@ export class CahGame {
                 globals.commandManager.registerSystemCommand(VoteCommand)
                 break;
             case GamePhase.Voting:
-                this.winner = this.getWinner()
+                this.winners = this.getWinners()
+                if (!this.winners.length) {
+                    globals.twitchChat.sendChatMessage("No votes cast. Cards Against Humanity ended without a winner.")
+                }
                 this.stop()
                 break
         }
@@ -96,7 +99,7 @@ export class CahGame {
             blackCard: this.blackCard.text,
             whiteCards: this.draws,
             phase: this.phase,
-            winner: this.winner,
+            winners: this.winners,
             drawingTime: globals.settings.settings.gameSettings.drawingTime || 60,
             votingTime: globals.settings.settings.gameSettings.votingTime || 60,
             lingerTime: globals.settings.settings.gameSettings.lingerTime || 10,
@@ -135,15 +138,22 @@ export class CahGame {
         return false
     }
 
-    getWinner(): Draw {
-        const sorted = Object.values(this.votes).reduce((acc, index) => {
+    getWinners(): Draw[] {
+        const values = Object.values(this.votes)
+
+        // no votes = no winner
+        if (!values.length) return [];
+
+        const sorted = values.reduce((acc, index) => {
             acc[index] += 1
             return acc
         }, new Array(this.draws.length).fill(0)).map((votes, index) => {
             return {votes, draw: this.draws[index]}
         }).sort((a, b) => b.votes - a.votes)
 
-        return sorted[0].draw
+        const max = sorted[0].votes
+
+        return sorted.filter(x => x.votes >= max).map(x => x.draw)
     }
 
     stop(): void {
@@ -151,7 +161,7 @@ export class CahGame {
         globals.commandManager.unregisterSystemCommand(CardCommand.definition.id)
         globals.commandManager.unregisterSystemCommand(VoteCommand.definition.id)
         this.sendState()
-        globals.eventManager.triggerEvent('de.justjakob.cahgame', 'game-ended', {blackCard: this.blackCard, winner: this.winner})
+        globals.eventManager.triggerEvent('de.justjakob.cahgame', 'game-ended', {blackCard: this.blackCard, winners: this.winners})
         clearTimeout(this.timeout)
         CahGame.currentGame = null;
     }

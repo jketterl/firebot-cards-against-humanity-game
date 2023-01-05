@@ -124,7 +124,7 @@ type OverlayData = {
     blackCard: string;
     whiteCards: Draw[];
     phase: GamePhase;
-    winner?: Draw;
+    winners: Draw[];
     drawingTime: number;
     votingTime: number;
     lingerTime: number;
@@ -169,7 +169,7 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
 
                 if (data.phase) {
                     if (data.phase && data.phase == 'finished') {
-                        if (data.winner) {
+                        if (data.winners.length) {
                             setTimeout(() => {
                                 $el.remove()
                             }, data.lingerTime * 1000)
@@ -219,11 +219,8 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
                         </div>
                     `
 
-                    if (data.winner) {
-                        $el.find('.cah-whitecards').html(renderDraw(data.winner, 0))
-                    } else {
-                        $el.find('.cah-whitecards').html(data.whiteCards.map(renderDraw).join(''))
-                    }
+                    const cards = data.winners.length ? data.winners : data.whiteCards
+                    $el.find('.cah-whitecards').html(cards.map(renderDraw).join(''))
 
                     const timer: Timer = $el.data('timer');
                     if (timer) {

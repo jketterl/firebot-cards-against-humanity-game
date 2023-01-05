@@ -18,10 +18,10 @@ const CahEventSource: EventSource = {
                 text: 'This is a _ card.',
                 pick: 1
             },
-            winner: {
+            winners: [{
                 texts: ['test'],
                 user: 'Firebot'
-            }
+            }]
         }
     }]
 }

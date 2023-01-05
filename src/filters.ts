@@ -22,7 +22,7 @@ const CahGameHasWinner: EventFilter = {
         ])
     },
     predicate(filterSettings: { comparisonType: string; value: any }, eventData: { eventSourceId: string; eventId: string; eventMeta: Record<string, any> }): Promise<boolean> {
-        return Promise.resolve(!!eventData.eventMeta.winner)
+        return Promise.resolve(!!eventData.eventMeta.winners.length)
     }
 }
 
