@@ -7,22 +7,24 @@ const CahGameHasWinner: EventFilter = {
     events: [
         { eventSourceId: 'de.justjakob.cahgame', eventId: 'game-ended' }
     ],
-    comparisonTypes: ['is'],
+    comparisonTypes: ['is', 'is not'],
     valueType: 'preset',
     presetValues(...args): Promise<any[]> {
         return Promise.resolve([
             {
-                value: "true",
+                value: "available",
                 display: "Available"
-            },
-            {
-                value: "false",
-                display: "Not available"
             }
         ])
     },
     predicate(filterSettings: { comparisonType: string; value: any }, eventData: { eventSourceId: string; eventId: string; eventMeta: Record<string, any> }): Promise<boolean> {
-        return Promise.resolve(!!eventData.eventMeta.winners.length)
+        const available = !!eventData.eventMeta.winners.length
+        switch (filterSettings.comparisonType) {
+            case 'is':
+                return Promise.resolve(available)
+            case 'is not':
+                return Promise.resolve(!available)
+        }
     }
 }
 
