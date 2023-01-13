@@ -103,6 +103,7 @@ export class CahGame {
             drawingTime: globals.settings.settings.gameSettings.drawingTime || 60,
             votingTime: globals.settings.settings.gameSettings.votingTime || 60,
             lingerTime: globals.settings.settings.gameSettings.lingerTime || 10,
+            position: globals.settings.settings.overlaySettings.position || 'center-center'
         });
     }
 
@@ -117,10 +118,11 @@ export class CahGame {
             texts: [...new Array(this.blackCard.pick)].map(() => this.whiteCards.shift())
         }
         this.draws.push(draw)
+        const accountType = globals.settings.settings.chatSettings.whisperAccount
         if (this.blackCard.pick == 1) {
-            globals.twitchChat.sendChatMessage(`You drew a card that says "${draw.texts[0]}".`, user, null);
+            globals.twitchChat.sendChatMessage(`You drew a card that says "${draw.texts[0]}".`, user, accountType);
         } else {
-            globals.twitchChat.sendChatMessage(`You drew ${this.blackCard.pick} cards that say "${draw.texts.join('", "')}".`, user, null);
+            globals.twitchChat.sendChatMessage(`You drew ${this.blackCard.pick} cards that say "${draw.texts.join('", "')}".`, user, accountType);
         }
         this.sendState()
     }

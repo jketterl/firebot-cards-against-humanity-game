@@ -9,6 +9,22 @@ const cahStyles = `
         justify-content: center;
         align-items: center;
     }
+    
+    .cah.cah--top {
+        align-items: start;
+    }
+    
+    .cah.cah--bottom {
+        align-items: end;
+    }
+    
+    .cah.cah--left {
+        justify-content: left;
+    }
+    
+    .cah.cah--right {
+        justify-content: right;
+    }
 
     .cah-wrapper {
         background-color: rgba(0, 0, 0, 0.25);
@@ -23,6 +39,7 @@ const cahStyles = `
         display: flex;
         flex-direction: column;
         flex-grow: 0;
+        margin: 20px;
     }
     
     .cah-cards {
@@ -128,6 +145,7 @@ type OverlayData = {
     drawingTime: number;
     votingTime: number;
     lingerTime: number;
+    position: string;
 }
 
 type Timer = {
@@ -167,6 +185,10 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
                 const $wrapper = $('.wrapper')
                 let $el = $wrapper.find('.cah')
 
+                const selectedClasses = data.position.split('-').map(p => 'cah--' + p).join(' ');
+                const allClasses = ['top', 'bottom', 'left', 'right', 'center'].map(p => 'cah--' + p).join(' ');
+                $el.removeClass(allClasses).addClass(selectedClasses);
+
                 if (data.phase) {
                     if (data.phase && data.phase == 'finished') {
                         if (data.winners.length) {
@@ -181,7 +203,7 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
 
                     if (!$el.length) {
                         $el = $(`
-                            <div class="cah">
+                            <div class="cah ${selectedClasses}">
                                 <div class="cah-wrapper">
                                     <div class="cah-cards">
                                         <div class="cah-card cah-card--black"><div class="cah-text"></div></div>
@@ -242,6 +264,7 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
                                     $countdown.text('')
                                     break
                             }
+                            timer.phase = data.phase
                         }
 
                         if (!timer.interval) {

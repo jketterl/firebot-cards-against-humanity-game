@@ -74,6 +74,56 @@ const GameDefinition: FirebotGame = {
                     }
                 }
             }
+        },
+        overlaySettings: {
+            title: "Overlay settings",
+            description: "Change on-stream overlay behaviour",
+            sortRank: 7,
+            settings: {
+                position: {
+                    type: "enum",
+                    title: "Overlay position",
+                    description: "Where should the overlay appear on screen?",
+                    tip: "",
+                    showBottomHr: false,
+                    default: "center-center",
+                    sortRank: 8,
+                    //@ts-ignore firebot types don't know about enum options
+                    options: {
+                        "top-left": "Top left",
+                        "top-center": "Top center",
+                        "top-right": "Top right",
+                        "center-left": "Center left",
+                        "center-center": "Center",
+                        "center-right": "Center right",
+                        "bottom-left": "Bottom left",
+                        "bottom-center": "Bottom center",
+                        "bottom-right": "Bottom right"
+                    },
+                    validation: {
+                        required: true
+                    }
+                },
+            }
+        },
+        chatSettings: {
+            title: "Chat settings",
+            description: "Configure chat messages",
+            sortRank: 9,
+            settings: {
+                whisperAccount: {
+                    type: "chatter-select",
+                    title: "Card Whisper account",
+                    description: "What account should be used to whisper the drawn card to users?",
+                    tip: "",
+                    showBottomHr: false,
+                    default: null,
+                    sortRank: 9,
+                    validation: {
+                        required: false
+                    }
+                }
+            }
         }
     },
     onLoad: gameSettings => {
@@ -89,6 +139,7 @@ const GameDefinition: FirebotGame = {
     onSettingsUpdate: gameSettings => {
         // this seems to be undefined, so i don't think this works as intended
         //globals.settings = gameSettings
+        CahGame.currentGame?.sendState()
     }
 }
 
