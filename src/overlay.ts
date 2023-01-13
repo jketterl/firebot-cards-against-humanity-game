@@ -215,7 +215,7 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
                                 </div>
                             `).join('')}
                             <div class="cah-user">${draw.user}</div>
-                            <div class="cah-vote">!vote ${index}</div>
+                            <div class="cah-vote">!vote ${index + 1}</div>
                         </div>
                     `
 

@@ -104,7 +104,7 @@ const VoteCommand: SystemCommand = {
 
         const vote = parseInt(userCommand.args[0])
 
-        if (!CahGame.currentGame.vote(username, vote)) {
+        if (!CahGame.currentGame.vote(username, vote - 1)) {
             if (vote == 69) {
                 //@ts-ignore firebot types are not updated for message responses
                 globals.twitchChat.sendChatMessage(`Nice!`, null, null, event.chatMessage.id);
