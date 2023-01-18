@@ -10,7 +10,6 @@ import {CahGameHasWinner} from "./filters";
 const script: Firebot.CustomScript = {
     run: runRequest => {
         // this is ugly, but i currently don't know how to get to these objects at a later point.
-        globals.gameManager = runRequest.modules.gameManager
         globals.commandManager = runRequest.modules.commandManager
         globals.twitchChat = runRequest.modules.twitchChat
         globals.httpServer = runRequest.modules.httpServer

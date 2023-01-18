@@ -4,7 +4,6 @@ import {TwitchChat} from "@crowbartools/firebot-custom-scripts-types/types/modul
 import {EventManager} from "@crowbartools/firebot-custom-scripts-types/types/modules/event-manager";
 
 type Globals = {
-    gameManager: GameManager;
     commandManager: CommandManager;
     twitchChat: TwitchChat;
     httpServer: any;
@@ -13,7 +12,6 @@ type Globals = {
 }
 
 const globals: Globals = {
-    gameManager: null,
     commandManager: null,
     twitchChat: null,
     httpServer: null,
