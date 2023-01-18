@@ -60,6 +60,19 @@ const GameDefinition: FirebotGame = {
                         min: 0
                     }
                 },
+                extraTime: {
+                    type: "number",
+                    title: "Extra voting time per drawn white card",
+                    description: "Adds an amount of time to the voting countdown for each card drawn",
+                    tip: "Time in seconds",
+                    showBottomHr: false,
+                    default: 10,
+                    sortRank: 6,
+                    validation: {
+                        required: false,
+                        min: 0
+                    }
+                },
                 lingerTime: {
                     type: "number",
                     title: "Linger time",
@@ -67,7 +80,7 @@ const GameDefinition: FirebotGame = {
                     tip: "Time in seconds",
                     showBottomHr: false,
                     default: 10,
-                    sortRank: 6,
+                    sortRank: 7,
                     validation: {
                         required: true,
                         min: 0
@@ -78,7 +91,7 @@ const GameDefinition: FirebotGame = {
         overlaySettings: {
             title: "Overlay settings",
             description: "Change on-stream overlay behaviour",
-            sortRank: 7,
+            sortRank: 8,
             settings: {
                 position: {
                     type: "enum",
@@ -87,7 +100,7 @@ const GameDefinition: FirebotGame = {
                     tip: "",
                     showBottomHr: false,
                     default: "center-center",
-                    sortRank: 8,
+                    sortRank: 9,
                     //@ts-ignore firebot types don't know about enum options
                     options: {
                         "top-left": "Top left",
@@ -109,7 +122,7 @@ const GameDefinition: FirebotGame = {
         chatSettings: {
             title: "Chat settings",
             description: "Configure chat messages",
-            sortRank: 9,
+            sortRank: 10,
             settings: {
                 whisperAccount: {
                     type: "chatter-select",

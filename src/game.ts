@@ -95,13 +95,15 @@ export class CahGame {
     }
 
     sendState(): void {
+        const extraTime = globals.settings.settings.gameSettings.extraTime || 10
+        const votingTime = globals.settings.settings.gameSettings.votingTime || 60
         globals.httpServer.sendToOverlay("cah", {
             blackCard: this.blackCard.text,
             whiteCards: this.draws,
             phase: this.phase,
             winners: this.winners,
             drawingTime: globals.settings.settings.gameSettings.drawingTime || 60,
-            votingTime: globals.settings.settings.gameSettings.votingTime || 60,
+            votingTime: votingTime + this.draws.length * extraTime,
             lingerTime: globals.settings.settings.gameSettings.lingerTime || 10,
             position: globals.settings.settings.overlaySettings.position || 'center-center'
         });
