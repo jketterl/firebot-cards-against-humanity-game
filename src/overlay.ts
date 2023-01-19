@@ -267,6 +267,7 @@ const CahOverlay: Effects.EffectType<any, OverlayData> = {
                             timer.phase = data.phase
                         }
 
+                        $remaining.text(timer.remaining)
                         if (!timer.interval) {
                             timer.interval = setInterval(() => {
                                 if (--timer.remaining <= 0) {

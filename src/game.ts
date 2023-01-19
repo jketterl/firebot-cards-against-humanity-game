@@ -66,6 +66,12 @@ export class CahGame {
         }, (globals.settings.settings.gameSettings.drawingTime || 60) * 1000);
     }
 
+    getVotingTime(): number {
+        const baseTime = globals.settings.settings.gameSettings.votingTime || 60
+        const extraTime = globals.settings.settings.gameSettings.extraTime || 10
+        return baseTime + this.draws.length * extraTime
+    }
+
     nextPhase(): void {
         this.timeout = null;
         switch (this.phase) {
@@ -79,7 +85,7 @@ export class CahGame {
                 this.phase = GamePhase.Voting
                 this.timeout = setTimeout(() => {
                     this.nextPhase()
-                }, (globals.settings.settings.gameSettings.votingTime || 60) * 1000);
+                }, this.getVotingTime() * 1000);
                 globals.commandManager.unregisterSystemCommand(CardCommand.definition.id)
                 globals.commandManager.registerSystemCommand(VoteCommand)
                 break;
@@ -95,15 +101,13 @@ export class CahGame {
     }
 
     sendState(): void {
-        const extraTime = globals.settings.settings.gameSettings.extraTime || 10
-        const votingTime = globals.settings.settings.gameSettings.votingTime || 60
         globals.httpServer.sendToOverlay("cah", {
             blackCard: this.blackCard.text,
             whiteCards: this.draws,
             phase: this.phase,
             winners: this.winners,
             drawingTime: globals.settings.settings.gameSettings.drawingTime || 60,
-            votingTime: votingTime + this.draws.length * extraTime,
+            votingTime: this.getVotingTime(),
             lingerTime: globals.settings.settings.gameSettings.lingerTime || 10,
             position: globals.settings.settings.overlaySettings.position || 'center-center'
         });
