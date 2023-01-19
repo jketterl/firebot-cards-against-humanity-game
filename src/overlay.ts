@@ -65,6 +65,9 @@ const cahStyles = `
     
     .cah-text {
         flex: 1;
+        overflow: hidden;
+        overflow-wrap: break-word;
+        text-overflow: ellipsis;
     }
     
     .cah-user {
