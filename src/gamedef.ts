@@ -145,7 +145,7 @@ const GameDefinition: FirebotGame = {
         } else {
             // firebot does not pass gameSettings when loading the game for the first time, so we need to get them ourselves
             //@ts-ignore firebot types does list this method even though it exists
-            globals.settings = globals.modules.gameManager.getGameSettings(GameDefinition.id)
+            globals.settings = globals.gameManager.getGameSettings(GameDefinition.id)
         }
         globals.commandManager.registerSystemCommand(CahCommand)
     },

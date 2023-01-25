@@ -14,6 +14,7 @@ const script: Firebot.CustomScript = {
         globals.twitchChat = runRequest.modules.twitchChat
         globals.httpServer = runRequest.modules.httpServer
         globals.eventManager = runRequest.modules.eventManager
+        globals.gameManager = runRequest.modules.gameManager
         runRequest.modules.gameManager.registerGame(GameDefinition)
         runRequest.modules.eventManager.registerEventSource(CahEventSource)
         runRequest.modules.effectManager.registerEffect(CahOverlay)
