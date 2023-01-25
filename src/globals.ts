@@ -1,4 +1,4 @@
-import {GameManager, GameSettings} from "@crowbartools/firebot-custom-scripts-types/types/modules/game-manager";
+import {GameSettings} from "@crowbartools/firebot-custom-scripts-types/types/modules/game-manager";
 import {CommandManager} from "@crowbartools/firebot-custom-scripts-types/types/modules/command-manager";
 import {TwitchChat} from "@crowbartools/firebot-custom-scripts-types/types/modules/twitch-chat";
 import {EventManager} from "@crowbartools/firebot-custom-scripts-types/types/modules/event-manager";
